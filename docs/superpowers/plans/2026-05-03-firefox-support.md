@@ -273,7 +273,20 @@ The git tag was created in Step 5.2. Do NOT push it — leave for the user.
 
 ---
 
-## Done
+## Decision (2026-05-03): postponed
+
+After implementing Tasks 1-5 on a feature branch and reviewing real Firefox behavior, we decided **not to ship to AMO**.
+
+Reason: Firefox's built-in awesomebar already searches open tabs, bookmarks, history, and shortcuts via `Cmd+K` by default. Pounce's remaining differentiation on Firefox shrinks to pinyin matching, batch open, quick-pick, and match highlighting — all real but niche enough that the AMO submission overhead (manual review, source bundle, listing maintenance, ongoing two-store version sync) outweighs the user reach.
+
+The build infrastructure (`manifest.firefox.json`, `build.sh --target firefox` flag) and the smoke checklist were dropped along with the feature branch — only this research / spec / plan triple is preserved as decision history.
+
+Reopen this plan if any of the following change:
+- Pounce gains Firefox-only differentiating features (e.g., a sidebar API not in Chrome).
+- A Firefox-using contributor commits to maintaining the AMO listing.
+- Firefox UI evolves and the awesomebar loses one of its current strengths.
+
+## (Reference, not executed)
 
 After all 5 tasks the user can:
 
