@@ -255,12 +255,18 @@ let historyDataCache = {
 };
 let historyDataPromise = null;
 
+// 屏蔽掉本扩展自己的页面（bridge.html、options.html 等），它们不应该出现在搜索结果里。
+// 用 startsWith 而非 ===，覆盖 ?query 和 #hash 后缀的情况。
+const EXTENSION_BASE_URL = chrome.runtime.getURL('');
+function isExtensionInternalUrl(url) {
+  return typeof url === 'string' && url.startsWith(EXTENSION_BASE_URL);
+}
+
 async function getTabsData() {
-  const bridgeUrl = chrome.runtime.getURL('bridge.html');
   const tabs = await chrome.tabs.query({});
 
   return tabs
-    .filter((tab) => tab.url && tab.url !== bridgeUrl)
+    .filter((tab) => tab.url && !isExtensionInternalUrl(tab.url))
     .map((tab) => ({
       type: 'tab',
       id: tab.id,
@@ -319,7 +325,9 @@ async function fetchHistoryData() {
       maxResults: 500
     });
 
-    return historyItems.filter((item) => item.url).map(mapHistoryItem);
+    return historyItems
+      .filter((item) => item.url && !isExtensionInternalUrl(item.url))
+      .map(mapHistoryItem);
   } catch (error) {
     console.warn('Pounce: Unable to read history data', error);
     return [];
@@ -337,7 +345,9 @@ async function searchHistoryByText(query) {
       maxResults: 50
     });
 
-    return historyItems.filter((item) => item.url).map(mapHistoryItem);
+    return historyItems
+      .filter((item) => item.url && !isExtensionInternalUrl(item.url))
+      .map(mapHistoryItem);
   } catch (error) {
     console.warn('Pounce: Unable to search history by text', error);
     return [];
@@ -376,7 +386,7 @@ async function getTopSitesData() {
     const topSites = await chrome.topSites.get();
 
     return topSites
-      .filter((site) => site.url)
+      .filter((site) => site.url && !isExtensionInternalUrl(site.url))
       .map((site) => ({
         type: 'topSite',
         id: `top-site:${site.url}`,
@@ -557,6 +567,11 @@ async function performWebSearch(query, bridgeTabId) {
 
 // 插件安装时的初始化
 chrome.runtime.onInstalled.addListener(async (details) => {
+  // 清理历史里残留的 bridge.html 记录（旧版本未过滤导致它进了用户历史）。
+  if (details.reason === 'install' || details.reason === 'update') {
+    chrome.history.deleteUrl({ url: chrome.runtime.getURL('bridge.html') }).catch(() => {});
+  }
+
   if (details.reason === 'install') {
     const platformInfo = await chrome.runtime.getPlatformInfo();
     const isMac = platformInfo.os === 'mac';
