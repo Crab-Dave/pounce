@@ -1,6 +1,6 @@
 {
   "ext_name": {
-    "message": "Pounce —— ⌘K 搜索标签页与书签",
+    "message": "Pounce —— ⌘K 一键找到一切",
     "description": "Extension name shown in Chrome Web Store and chrome://extensions"
   },
   "ext_description": {
@@ -8,7 +8,7 @@
     "description": "Extension description in Chrome Web Store"
   },
   "action_title": {
-    "message": "Pounce —— 搜索标签页、书签和历史记录",
+    "message": "Pounce —— ⌘K 一键找到一切",
     "description": "Toolbar icon tooltip"
   },
   "cmd_open_all": {

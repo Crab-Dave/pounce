@@ -1,6 +1,6 @@
 {
   "ext_name": {
-    "message": "Pounce – Cmd+K Search Tabs & Bookmarks",
+    "message": "Pounce – Find Anything with ⌘K",
     "description": "Extension name shown in Chrome Web Store and chrome://extensions"
   },
   "ext_description": {
@@ -8,7 +8,7 @@
     "description": "Extension description in Chrome Web Store"
   },
   "action_title": {
-    "message": "Pounce – Search Tabs, Bookmarks & History",
+    "message": "Pounce – Find Anything with ⌘K",
     "description": "Toolbar icon tooltip"
   },
   "cmd_open_all": {
