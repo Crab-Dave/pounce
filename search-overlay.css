@@ -51,7 +51,7 @@
 
 /* Overlay container - covers entire viewport */
 .pounce-search-overlay {
-  --pn-radius: 0.875rem; /* 14px — more intentional floating dialog feel */
+  --pn-radius: 14px; /* px, not rem — Shadow DOM doesn't isolate rem from host's <html> font-size (e.g. Baidu sets it to 100px) */
   position: fixed;
   top: 0;
   left: 0;
