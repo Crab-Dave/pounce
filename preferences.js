@@ -5,7 +5,6 @@
 
   const DEFAULT_SEARCH_PREFERENCES = Object.freeze({
     quickPickEnabled: true,
-    highlightMatchesEnabled: true,
     pinyinMatchingEnabled: true,
     resultsLimit: 10
   });

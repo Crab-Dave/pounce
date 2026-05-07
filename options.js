@@ -114,7 +114,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const clearAllBtn = document.getElementById('clearAllBtn');
   const themeSelect = document.getElementById('themeSelect');
   const quickPickToggle = document.getElementById('quickPickEnabled');
-  const highlightMatchesToggle = document.getElementById('highlightMatchesEnabled');
   const pinyinMatchingToggle = document.getElementById('pinyinMatchingEnabled');
   const resultsLimitSelect = document.getElementById('resultsLimit');
   const preferenceKeys = window.PouncePreferences.SEARCH_PREFERENCE_KEYS;
@@ -450,10 +449,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         saveSearchPreference('quickPickEnabled', quickPickToggle.checked);
       });
 
-      highlightMatchesToggle.addEventListener('change', () => {
-        saveSearchPreference('highlightMatchesEnabled', highlightMatchesToggle.checked);
-      });
-
       pinyinMatchingToggle.addEventListener('change', () => {
         saveSearchPreference('pinyinMatchingEnabled', pinyinMatchingToggle.checked);
       });
@@ -469,7 +464,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         applySearchPreferenceToggles(normalizeSearchPreferences({
           quickPickEnabled: changes.quickPickEnabled ? changes.quickPickEnabled.newValue : quickPickToggle.checked,
-          highlightMatchesEnabled: changes.highlightMatchesEnabled ? changes.highlightMatchesEnabled.newValue : highlightMatchesToggle.checked,
           pinyinMatchingEnabled: changes.pinyinMatchingEnabled ? changes.pinyinMatchingEnabled.newValue : pinyinMatchingToggle.checked,
           resultsLimit: changes.resultsLimit ? changes.resultsLimit.newValue : Number(resultsLimitSelect.value)
         }));
@@ -481,7 +475,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function applySearchPreferenceToggles(preferences) {
     quickPickToggle.checked = preferences.quickPickEnabled;
-    highlightMatchesToggle.checked = preferences.highlightMatchesEnabled;
     pinyinMatchingToggle.checked = preferences.pinyinMatchingEnabled;
     resultsLimitSelect.value = String(preferences.resultsLimit);
   }

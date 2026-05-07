@@ -119,14 +119,6 @@
     "message": "搜索体验",
     "description": "Search settings section header"
   },
-  "options_highlightMatches": {
-    "message": "高亮匹配项",
-    "description": "Toggle label"
-  },
-  "options_highlightMatchesDesc": {
-    "message": "在结果标题和 URL 中突出显示匹配到的文字。",
-    "description": "Toggle description"
-  },
   "options_pinyinToggle": {
     "message": "按拼音匹配中文标题",
     "description": "Pinyin toggle label"

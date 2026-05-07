@@ -119,14 +119,6 @@
     "message": "Search Experience",
     "description": "Search settings section header"
   },
-  "options_highlightMatches": {
-    "message": "Highlight matches",
-    "description": "Toggle label"
-  },
-  "options_highlightMatchesDesc": {
-    "message": "Emphasize matched text in result titles and URLs.",
-    "description": "Toggle description"
-  },
   "options_pinyinToggle": {
     "message": "Match Chinese titles by pinyin",
     "description": "Pinyin toggle label"

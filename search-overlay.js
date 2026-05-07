@@ -32,7 +32,6 @@
   const PREFERENCES = globalThis.PouncePreferences || {};
   const DEFAULT_SEARCH_PREFERENCES = PREFERENCES.DEFAULT_SEARCH_PREFERENCES || {
     quickPickEnabled: true,
-    highlightMatchesEnabled: true,
     pinyinMatchingEnabled: true,
     resultsLimit: 10
   };
@@ -335,7 +334,6 @@
 
         this.searchPreferences = normalizeSearchPreferences({
           quickPickEnabled: changes.quickPickEnabled ? changes.quickPickEnabled.newValue : this.searchPreferences.quickPickEnabled,
-          highlightMatchesEnabled: changes.highlightMatchesEnabled ? changes.highlightMatchesEnabled.newValue : this.searchPreferences.highlightMatchesEnabled,
           pinyinMatchingEnabled: changes.pinyinMatchingEnabled ? changes.pinyinMatchingEnabled.newValue : this.searchPreferences.pinyinMatchingEnabled,
           resultsLimit: changes.resultsLimit ? changes.resultsLimit.newValue : this.searchPreferences.resultsLimit
         });
@@ -888,8 +886,7 @@
       
       const titleText = item.displayTitle || item.title || (window.i18n ? window.i18n.t('overlay_untitled') : 'Untitled');
       const urlText = item.displayUrl || item.url || '';
-      const isHighlightable = this.searchPreferences.highlightMatchesEnabled &&
-        HIGHLIGHTABLE_TYPES.includes(item.type) &&
+      const isHighlightable = HIGHLIGHTABLE_TYPES.includes(item.type) &&
         typeof query === 'string' &&
         query.trim().length > 0;
       const ranger = (typeof globalThis !== 'undefined' && globalThis.PounceSearchUtils && globalThis.PounceSearchUtils.getHighlightRanges) || null;

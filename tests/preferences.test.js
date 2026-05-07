@@ -15,11 +15,9 @@ test('missing search preferences default to enabled', () => {
 test('explicit disabled search preferences are preserved', () => {
   assert.deepEqual(normalizeSearchPreferences({
     quickPickEnabled: false,
-    highlightMatchesEnabled: false,
     pinyinMatchingEnabled: false
   }), {
     quickPickEnabled: false,
-    highlightMatchesEnabled: false,
     pinyinMatchingEnabled: false,
     resultsLimit: DEFAULT_SEARCH_PREFERENCES.resultsLimit
   });
@@ -28,7 +26,7 @@ test('explicit disabled search preferences are preserved', () => {
 test('non-boolean search preferences fall back to defaults', () => {
   assert.deepEqual(normalizeSearchPreferences({
     quickPickEnabled: 'false',
-    highlightMatchesEnabled: null
+    pinyinMatchingEnabled: null
   }), DEFAULT_SEARCH_PREFERENCES);
 });
 
