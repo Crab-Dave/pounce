@@ -65,6 +65,10 @@ MIT —— 见 [LICENSE](LICENSE)
 
 ## 更新日志
 
+### 1.5.4
+- 修复：在带 focus trap 的页面上 ⌘K 终于可用（如 OpenObserve 日志详情面板基于 Quasar QDialog）。原本浮层会显示但输入框无焦点、按键无反应，现在浮层焦点不再被宿主的 focus 管理拽走。
+- 隐私：清掉 content script 里成功路径的 `console.log`，避免在用户访问的网页 DevTools 里暴露 Pounce 内部活动。失败路径仍保留诊断日志。
+
 ### 1.5.3
 - 修复：在把 `<html>` 字号设大的站点上（如 baidu.com 设成 100px），搜索框变成胶囊形。Shadow DOM 不隔离 `rem` 与宿主页根字号，导致圆角变量被放大。改回固定像素。
 

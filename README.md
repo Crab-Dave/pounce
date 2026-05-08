@@ -65,6 +65,10 @@ MIT — see [LICENSE](LICENSE)
 
 ## Changelog
 
+### 1.5.4
+- Fix: ⌘K now works on pages whose modal libraries trap focus (e.g. OpenObserve's log detail panel using Quasar QDialog). The overlay's input would open but stay unfocused, swallowing keystrokes — focus is now shielded from the host page's focus-trap watchers.
+- Privacy: stripped success-path `console.log` calls from content scripts so internal Pounce activity no longer leaks into the host page's DevTools console. Error logging is preserved for diagnosing real failures.
+
 ### 1.5.3
 - Fix: search dialog corners turned into a pill shape on sites that scale `<html>` font-size (e.g. baidu.com sets it to 100px). The Shadow DOM doesn't isolate `rem` from the host document, so the radius variable was being multiplied. Switched to fixed pixels.
 
