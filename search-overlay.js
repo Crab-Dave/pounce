@@ -82,6 +82,16 @@
       this.quickPickHintLabelEl = null;
       this.closeHintEl = null;
 
+      // 鼠标真实移动跟踪：Cmd+K 弹出时若光标恰好压在某项上，
+      // CSS :hover 会立刻点亮那一项，与键盘默认选中的第 1 项形成"两个高亮"。
+      // 通过门控 :hover（CSS 用 .pn-mouse-active 父类），只有用户真正移动鼠标
+      // 超过阈值后才允许 hover 生效，并同步把 selectedIndex 推到光标所在项。
+      this._mouseActive = false;
+      this._mouseBaselineX = null;
+      this._mouseBaselineY = null;
+      this._lastMouseX = null;
+      this._lastMouseY = null;
+
       // Mac 用 ⌥ 符号，其他平台用 Alt+ 前缀
       const isMac = navigator.platform.toUpperCase().includes('MAC') ||
         navigator.userAgent.toUpperCase().includes('MAC');
@@ -266,10 +276,14 @@
       
       // Search input events
       this.searchInput.addEventListener('input', (e) => {
+        this._resetMouseActivation();
         this.handleSearch(e.target.value);
       });
 
       this.searchInput.addEventListener('keydown', (e) => {
+        // 任何键盘动作都视为"用户在用键盘"，重置鼠标激活状态。
+        // 这样键盘选完后，trackpad 微小抖动（<5px）不会再把选中抢走。
+        this._resetMouseActivation();
         this.handleKeyDown(e);
       });
 
@@ -344,6 +358,38 @@
 
       this.resultsContainer.addEventListener('scroll', () => {
         this.updateNumberBadges();
+        // 滚轮滚动列表时，CSS :hover 会自动跟着光标位置走（光标不动但内容滚走，
+        // 命中行变成新一项），但浏览器不会触发 mousemove → selectedIndex 与 hover
+        // 行错位 → 又出现"两个高亮"。这里同步一次。
+        this._syncSelectionToMouse();
+      });
+
+      // 真实鼠标移动判定：>5px 才认为是有意移动，避免 trackpad 误触；
+      // 一旦激活，每次 mousemove 都把 selectedIndex 推到光标所在项，
+      // 让"hover 高亮"和"键盘选中"始终是同一项。
+      this.resultsContainer.addEventListener('mousemove', (e) => {
+        // 缓存最近一次鼠标位置，用于异步重建结果列表后续上 hover 同步。
+        this._lastMouseX = e.clientX;
+        this._lastMouseY = e.clientY;
+        if (!this._mouseActive) {
+          if (this._mouseBaselineX === null) {
+            this._mouseBaselineX = e.clientX;
+            this._mouseBaselineY = e.clientY;
+            return;
+          }
+          const dx = e.clientX - this._mouseBaselineX;
+          const dy = e.clientY - this._mouseBaselineY;
+          if (dx * dx + dy * dy < 25) return; // 5px 阈值
+          this._mouseActive = true;
+          if (this.overlay) this.overlay.classList.add('pn-mouse-active');
+        }
+        const item = e.target && e.target.closest ? e.target.closest('.pounce-search-result') : null;
+        if (!item || !item.dataset || item.dataset.index === undefined) return;
+        const idx = Number(item.dataset.index);
+        if (Number.isFinite(idx) && idx !== this.selectedIndex) {
+          this.selectedIndex = idx;
+          this.updateSelection();
+        }
       });
 
       this.storageChangeHandler = (changes, area) => {
@@ -408,14 +454,39 @@
       }
     }
     
+    _resetMouseActivation() {
+      this._mouseActive = false;
+      this._mouseBaselineX = null;
+      this._mouseBaselineY = null;
+      this._lastMouseX = null;
+      this._lastMouseY = null;
+      if (this.overlay) this.overlay.classList.remove('pn-mouse-active');
+    }
+
+    _syncSelectionToMouse() {
+      if (!this._mouseActive) return;
+      if (this._lastMouseX === null || this._lastMouseY === null) return;
+      if (!this.shadowRoot || typeof this.shadowRoot.elementFromPoint !== 'function') return;
+      const hit = this.shadowRoot.elementFromPoint(this._lastMouseX, this._lastMouseY);
+      if (!hit || !hit.closest) return;
+      const item = hit.closest('.pounce-search-result');
+      if (!item || !item.dataset || item.dataset.index === undefined) return;
+      const idx = Number(item.dataset.index);
+      if (Number.isFinite(idx) && idx !== this.selectedIndex) {
+        this.selectedIndex = idx;
+        this.updateSelection();
+      }
+    }
+
     show() {
       if (this.isVisible) return;
-      
+
       this.isVisible = true;
       this.overlay.style.display = 'flex';
       this.searchInput.value = '';
       this.searchInput.focus();
       this.selectedIndex = -1;
+      this._resetMouseActivation();
       this.loadSearchPreferences();
       
       // Load initial data
@@ -851,6 +922,12 @@
         this.updateSelection();
       }
 
+      // 列表异步重建（如 history 拉取回来后 rerankAndRender）若鼠标仍在某项上
+      // 但未触发新 mousemove，selectedIndex 已被重置为 0 而 .pn-mouse-active 还在，
+      // CSS :hover 会让光标下那条也高亮 → 又出现"两个选中"。
+      // 这里用缓存的鼠标坐标 + shadowRoot.elementFromPoint 续上同步。
+      this._syncSelectionToMouse();
+
       // 初始编号（异步等 layout 稳定后再算）
       requestAnimationFrame(() => this.updateNumberBadges());
       
@@ -862,6 +939,7 @@
     createResultElement(item, index, query = '') {
       const element = document.createElement('div');
       element.className = 'pounce-search-result';
+      element.dataset.index = String(index);
       if (index === this.selectedIndex) {
         element.classList.add('selected');
       }
