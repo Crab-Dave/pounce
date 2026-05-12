@@ -2,6 +2,9 @@
 
 🌐 **English** · [中文](CHANGELOG.zh-CN.md)
 
+### 1.5.6
+- Combined search: separating words with spaces now narrows results to items containing *every* word, in any order. Typing `dev payment` finds entries that have both — handy for picking one config out of many environment-prefixed names (dev / fat / pre). Each word still falls back to pinyin matching individually, so `dev bd` matches `dev 百度搜索`. Addresses #5.
+
 ### 1.5.5
 - Onboarding: Settings page now opens with a hero card showing the primary shortcut (⌘K on Mac, Alt+K elsewhere) and a one-line pitch — first-time users immediately know what Pounce is and how to use it. The "Batch Open URLs" section moved below the search preferences.
 - Fix: search overlay no longer shows two highlighted rows at the same time. This happened when the cursor sat on a result while the keyboard-selected row was different — typically right after opening the overlay with the cursor already over the list, or when an async history fetch rerendered results, or when scrolling the list. The hovered row now becomes the truly selected one, and CSS `:hover` is gated until you actually move the mouse.
