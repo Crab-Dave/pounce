@@ -871,7 +871,6 @@
         return null;
       }
     }
-    
     renderHighlightedText(textEl, text, ranges) {
       // Always reset the element first.
       textEl.textContent = '';

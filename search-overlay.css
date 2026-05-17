@@ -741,12 +741,13 @@
 }
 
 .pounce-search-result.search-option .pounce-result-icon {
-  background-color: var(--pn-primary);
-  color: var(--pn-primary-foreground);
+  background: transparent;
+  color: inherit;
 }
 
 .pounce-search-result.search-option .pounce-result-icon svg {
-  stroke: var(--pn-primary-foreground);
+  width: 18px;
+  height: 18px;
 }
 
 .pn-mouse-active .pounce-search-result.search-option:hover {
