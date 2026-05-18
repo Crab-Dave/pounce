@@ -97,18 +97,26 @@
 
 /* Search icon */
 .pounce-search-icon {
-  width: 20px;
-  height: 20px;
-  margin-right: 12px;
-  opacity: 0.6;
+  width: 24px;
+  height: 24px;
+  margin-right: 10px;
+  color: var(--pn-muted-foreground);
+  opacity: 0.55;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .pounce-search-icon svg {
-  width: 100%;
-  height: 100%;
-  fill: var(--pn-muted-foreground);
-  stroke: var(--pn-muted-foreground);
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+}
+
+.pounce-search-input-container:focus-within .pounce-search-icon {
+  opacity: 0.38;
 }
 
 /* Search input — transparent, fused into container */
@@ -741,12 +749,16 @@
 }
 
 .pounce-search-result.search-option .pounce-result-icon {
-  background-color: var(--pn-primary);
-  color: var(--pn-primary-foreground);
+  background: transparent;
+  color: var(--pn-muted-foreground);
+  opacity: 0.55;
 }
 
 .pounce-search-result.search-option .pounce-result-icon svg {
-  stroke: var(--pn-primary-foreground);
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
 }
 
 .pn-mouse-active .pounce-search-result.search-option:hover {

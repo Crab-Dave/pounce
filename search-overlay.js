@@ -101,6 +101,15 @@
       this.init();
     }
 
+    getSearchIconSvg() {
+      return `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="11" cy="11" r="7.5" stroke="currentColor" stroke-width="1.75"/>
+          <path d="M20 20L16.5 16.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+        </svg>
+      `;
+    }
+
     init() {
       this.createOverlay();
       this.bindEvents();
@@ -147,12 +156,7 @@
       // Create search icon — proper currentColor SVG
       const searchIcon = document.createElement('div');
       searchIcon.className = 'pounce-search-icon';
-      searchIcon.innerHTML = `
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="11" cy="11" r="7.5" stroke="currentColor" stroke-width="1.75"/>
-          <path d="M20 20L16.5 16.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
-        </svg>
-      `;
+      searchIcon.innerHTML = this.getSearchIconSvg();
       
       // Create search input
       this.searchInput = document.createElement('input');
@@ -871,7 +875,6 @@
         return null;
       }
     }
-    
     renderHighlightedText(textEl, text, ranges) {
       // Always reset the element first.
       textEl.textContent = '';
@@ -950,11 +953,7 @@
       
       // Special handling for synthetic options.
       if (item.type === 'search') {
-        icon.innerHTML = `
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        `;
+        icon.innerHTML = this.getSearchIconSvg();
         element.classList.add('search-option');
       } else if (item.type === 'open') {
         icon.textContent = item.iconFallback || '?';

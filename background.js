@@ -547,20 +547,17 @@ async function injectAndShow(tabId, bridgeTabId) {
 // 执行网页搜索
 async function performWebSearch(query, bridgeTabId) {
   try {
-    if (!query || !query.trim()) {
+    const text = query?.trim();
+    if (!text) {
       throw new Error('Search query is empty');
     }
 
-    const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(query.trim())}`;
-
     if (bridgeTabId) {
-      await chrome.tabs.update(bridgeTabId, { url: searchUrl, active: true });
+      await chrome.tabs.update(bridgeTabId, { active: true });
+      await chrome.search.query({ text, tabId: bridgeTabId });
     } else {
-      await chrome.tabs.create({ url: searchUrl, active: true });
+      await chrome.search.query({ text, disposition: 'NEW_TAB' });
     }
-    
-    console.log('Pounce: Performed web search for:', query);
-    
   } catch (error) {
     console.error('Error performing web search:', error);
     
