@@ -33,13 +33,13 @@
    "manifest_version": 3,
    "name": "__MSG_ext_name__",
    "options_page": "options.html",
-   "permissions": [ "storage", "tabs", "notifications", "bookmarks", "history", "topSites", "scripting", "activeTab" ],
+   "permissions": [ "storage", "tabs", "notifications", "bookmarks", "history", "topSites", "scripting", "activeTab", "search", "favicon" ],
    "update_url": "https://clients2.google.com/service/update2/crx",
    "version": "1.5.6",
    "web_accessible_resources": [
       {
          "matches": [ "<all_urls>" ],
-         "resources": [ "search-overlay.css", "_locales/*/messages.json" ]
+         "resources": [ "search-overlay.css", "_locales/*/messages.json", "_favicon/*" ]
       }
    ]
 }

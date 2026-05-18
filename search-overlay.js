@@ -101,6 +101,47 @@
       this.init();
     }
 
+    getSearchIconSvg() {
+      return `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="11" cy="11" r="7.5" stroke="currentColor" stroke-width="1.75"/>
+          <path d="M20 20L16.5 16.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+        </svg>
+      `;
+    }
+
+    getFaviconUrl(pageUrl) {
+      const faviconUrl = new URL(chrome.runtime.getURL('/_favicon/'));
+      faviconUrl.searchParams.set('pageUrl', pageUrl);
+      faviconUrl.searchParams.set('size', '32');
+      return faviconUrl.toString();
+    }
+
+    getFaviconHostKey(url) {
+      try {
+        return new URL(url).hostname.toLowerCase().replace(/^www\./, '').replace(/\.$/, '');
+      } catch (error) {
+        return '';
+      }
+    }
+
+    getOpenOptionFaviconUrl(pageUrl) {
+      const hostKey = this.getFaviconHostKey(pageUrl);
+      const matchingResult = hostKey && Array.isArray(this.currentResults)
+        ? this.currentResults.find((result) => {
+          if (!result || result.type === 'open' || result.type === 'search' || !result.favIconUrl) {
+            return false;
+          }
+          if (result.favIconUrl.startsWith('chrome://')) {
+            return false;
+          }
+          return this.getFaviconHostKey(result.url) === hostKey;
+        })
+        : null;
+
+      return matchingResult?.favIconUrl || this.getFaviconUrl(pageUrl);
+    }
+
     init() {
       this.createOverlay();
       this.bindEvents();
@@ -147,12 +188,7 @@
       // Create search icon — proper currentColor SVG
       const searchIcon = document.createElement('div');
       searchIcon.className = 'pounce-search-icon';
-      searchIcon.innerHTML = `
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="11" cy="11" r="7.5" stroke="currentColor" stroke-width="1.75"/>
-          <path d="M20 20L16.5 16.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
-        </svg>
-      `;
+      searchIcon.innerHTML = this.getSearchIconSvg();
       
       // Create search input
       this.searchInput = document.createElement('input');
@@ -865,6 +901,7 @@
           displayUrl: normalizedUrl,
           sourceLabel: window.i18n ? window.i18n.t('overlay_sourceOpen') : 'Open',
           iconFallback: 'O',
+          favIconUrl: this.getFaviconUrl(normalizedUrl),
           isOpenOption: true
         };
       } catch (error) {
@@ -949,29 +986,30 @@
       
       // Special handling for synthetic options.
       if (item.type === 'search') {
-        icon.innerHTML = `
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        `;
+        icon.innerHTML = this.getSearchIconSvg();
         element.classList.add('search-option');
       } else if (item.type === 'open') {
-        icon.textContent = item.iconFallback || '?';
         element.classList.add('open-option');
-      } else if (item.favIconUrl && item.favIconUrl !== '' && !item.favIconUrl.startsWith('chrome://')) {
-        // 使用实际的网页图标（跳过 chrome:// 图标，浏览器会阻止加载）
-        const img = document.createElement('img');
-        img.src = item.favIconUrl;
-        img.alt = item.displayTitle || item.title || (window.i18n ? window.i18n.t('overlay_websiteIconAlt') : 'Website icon');
-        img.onerror = function() {
-          // 如果图标加载失败，显示默认文字
-          icon.innerHTML = '';
+      }
+
+      const favIconUrl = item.favIconUrl || (item.type === 'open' && item.url ? this.getOpenOptionFaviconUrl(item.url) : '');
+
+      if (item.type !== 'search') {
+        if (favIconUrl && !favIconUrl.startsWith('chrome://')) {
+          // 使用实际的网页图标（跳过 chrome:// 图标，浏览器会阻止加载）
+          const img = document.createElement('img');
+          img.src = favIconUrl;
+          img.alt = item.displayTitle || item.title || (window.i18n ? window.i18n.t('overlay_websiteIconAlt') : 'Website icon');
+          img.onerror = function() {
+            // 如果图标加载失败，显示默认文字
+            icon.innerHTML = '';
+            icon.textContent = item.iconFallback || '?';
+          };
+          icon.appendChild(img);
+        } else {
+          // 没有图标URL时显示默认文字
           icon.textContent = item.iconFallback || '?';
-        };
-        icon.appendChild(img);
-      } else {
-        // 没有图标URL时显示默认文字
-        icon.textContent = item.iconFallback || '?';
+        }
       }
       
       // Content

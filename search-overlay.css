@@ -115,10 +115,6 @@
   stroke: currentColor;
 }
 
-.pounce-search-input-container:focus-within .pounce-search-icon {
-  opacity: 0.38;
-}
-
 /* Search input — transparent, fused into container */
 .pounce-search-input {
   flex: 1;
@@ -141,10 +137,6 @@
 
 .pounce-search-input:focus {
   outline: none;
-}
-
-.pounce-search-input-container:focus-within {
-  border-bottom-color: var(--pn-border);
 }
 
 .pounce-search-input-container:focus-within .pounce-search-icon {
@@ -354,7 +346,7 @@
 .pounce-search-loading {
   padding: 48px 20px;
   text-align: center;
-  color: var(--pn-text-secondary);
+  color: var(--pn-muted-foreground);
   font-size: 15px;
   font-weight: 400;
   display: flex;
@@ -368,7 +360,7 @@
   width: 24px;
   height: 24px;
   border: 2px solid var(--pn-border);
-  border-top-color: var(--pn-primary-color);
+  border-top-color: var(--pn-primary);
   border-radius: 50%;
   animation: pounce-spin 1s linear infinite;
 }
@@ -461,12 +453,12 @@
 }
 
 .pounce-search-results::-webkit-scrollbar-thumb:hover {
-  background: var(--pn-text-tertiary);
+  background: var(--pn-muted-foreground);
 }
 
 /* Focus and active states */
 .pounce-search-result:focus {
-  outline: 2px solid var(--pn-primary-color);
+  outline: 2px solid var(--pn-primary);
   outline-offset: -2px;
 }
 
@@ -497,7 +489,6 @@
   }
   
   .pounce-search-input {
-    height: 60px;
     font-size: 16px; /* Prevents zoom on iOS */
   }
   
@@ -539,12 +530,8 @@
   }
   
   .pounce-search-input-container {
-    padding: 0 12px;
-  }
-  
-  .pounce-search-input {
     height: 52px;
-    font-size: 16px;
+    padding: 0 12px;
   }
   
   .pounce-search-results {
@@ -577,18 +564,14 @@
 
 /* High contrast mode support */
 @media (prefers-contrast: high) {
-  :root {
-    --pn-primary-color: #0000FF;
-    --pn-primary-hover: #000080;
-    --pn-background: #FFFFFF;
-    --pn-surface: #FFFFFF;
-    --pn-surface-hover: #F0F0F0;
-    --pn-surface-selected: #E0E0FF;
-    --pn-text-primary: #000000;
-    --pn-text-secondary: #000000;
-    --pn-text-tertiary: #666666;
+  .pounce-search-overlay {
+    --pn-primary: #0000FF;
+    --pn-card: #FFFFFF;
+    --pn-foreground: #000000;
+    --pn-muted: #F0F0F0;
+    --pn-muted-foreground: #000000;
+    --pn-accent: #E0E0FF;
     --pn-border: #000000;
-    --pn-border-light: #666666;
     --pn-shadow: rgba(0, 0, 0, 0.5);
     --pn-shadow-strong: rgba(0, 0, 0, 0.8);
   }
@@ -604,23 +587,20 @@
   
   .pn-mouse-active .pounce-search-result:hover,
   .pounce-search-result.selected {
-    border: 2px solid var(--pn-primary-color);
+    border: 2px solid var(--pn-primary);
   }
 }
 
 /* Dark theme high contrast */
 @media (prefers-color-scheme: dark) and (prefers-contrast: high) {
-  :root {
-    --pn-primary-color: #66B3FF;
-    --pn-background: #000000;
-    --pn-surface: #000000;
-    --pn-surface-hover: #1A1A1A;
-    --pn-surface-selected: #003366;
-    --pn-text-primary: #FFFFFF;
-    --pn-text-secondary: #FFFFFF;
-    --pn-text-tertiary: #CCCCCC;
+  .pounce-search-overlay {
+    --pn-primary: #66B3FF;
+    --pn-card: #000000;
+    --pn-foreground: #FFFFFF;
+    --pn-muted: #1A1A1A;
+    --pn-muted-foreground: #FFFFFF;
+    --pn-accent: #003366;
     --pn-border: #FFFFFF;
-    --pn-border-light: #CCCCCC;
   }
 }
 
@@ -643,7 +623,7 @@
 
 /* Focus visible for keyboard navigation */
 .pounce-search-result:focus-visible {
-  outline: 3px solid var(--pn-primary-color);
+  outline: 3px solid var(--pn-primary);
   outline-offset: 2px;
 }
 
@@ -732,41 +712,31 @@
   color: var(--pn-primary-foreground);
 }
 
+.pounce-search-result.open-option .pounce-result-icon:has(img) {
+  background: transparent;
+}
+
 .pn-mouse-active .pounce-search-result.open-option:hover {
   background-color: var(--pn-accent);
   border-color: var(--pn-primary);
 }
 
-.pounce-search-result.open-option.selected {
-  background-color: var(--pn-accent);
-  border-color: var(--pn-primary);
-  box-shadow: 0 0 0 1px var(--pn-primary);
-}
-
-.pounce-search-result.search-option {
-  border-top: 1px solid var(--pn-border);
-  margin-top: 4px;
-}
-
 .pounce-search-result.search-option .pounce-result-icon {
   background: transparent;
-  color: inherit;
+  color: var(--pn-muted-foreground);
+  opacity: 0.55;
 }
 
 .pounce-search-result.search-option .pounce-result-icon svg {
   width: 18px;
   height: 18px;
+  fill: none;
+  stroke: currentColor;
 }
 
 .pn-mouse-active .pounce-search-result.search-option:hover {
   background-color: var(--pn-accent);
   border-color: var(--pn-primary);
-}
-
-.pounce-search-result.search-option.selected {
-  background-color: var(--pn-accent);
-  border-color: var(--pn-primary);
-  box-shadow: 0 0 0 1px var(--pn-primary);
 }
 
 /* Print styles */
