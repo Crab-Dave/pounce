@@ -2,6 +2,11 @@
 
 🌐 **English** · [中文](CHANGELOG.zh-CN.md)
 
+### 1.5.7
+- Search now uses Chrome's default search engine instead of a hardcoded Google URL.
+- Polish overlay action icons: the search action uses the same magnifier as the input, and direct-open URL actions use the target site's favicon when available.
+- Clean up overlay CSS so synthetic action rows share the same selected-state treatment as normal results.
+
 ### 1.5.6
 - Combined search: separating words with spaces now narrows results to items containing *every* word, in any order. Typing `dev payment` finds entries that have both — handy for picking one config out of many environment-prefixed names (dev / fat / pre). Each word still falls back to pinyin matching individually, so `dev bd` matches `dev 百度搜索`. Addresses #5.
 
