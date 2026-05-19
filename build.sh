@@ -79,16 +79,13 @@ from pathlib import Path
 import re
 
 packages = []
-remove = []
 for package in Path('.').glob('pounce-*.zip'):
     match = re.fullmatch(r'pounce-(\d+)\.(\d+)\.(\d+)\.zip', package.name)
     if match:
         packages.append((tuple(int(part) for part in match.groups()), package))
-    else:
-        remove.append(package)
 
 packages.sort(reverse=True)
-remove.extend(package for _, package in packages[3:])
+remove = [package for _, package in packages[3:]]
 
 for package in sorted(remove, key=lambda item: item.name):
     package.unlink()

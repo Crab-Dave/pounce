@@ -117,29 +117,11 @@
       return faviconUrl.toString();
     }
 
-    getFaviconHostKey(url) {
-      try {
-        return new URL(url).hostname.toLowerCase().replace(/^www\./, '').replace(/\.$/, '');
-      } catch (error) {
+    getSafeFaviconUrl(item) {
+      if (!item || item.type === 'search' || !item.url) {
         return '';
       }
-    }
-
-    getOpenOptionFaviconUrl(pageUrl) {
-      const hostKey = this.getFaviconHostKey(pageUrl);
-      const matchingResult = hostKey && Array.isArray(this.currentResults)
-        ? this.currentResults.find((result) => {
-          if (!result || result.type === 'open' || result.type === 'search' || !result.favIconUrl) {
-            return false;
-          }
-          if (result.favIconUrl.startsWith('chrome://')) {
-            return false;
-          }
-          return this.getFaviconHostKey(result.url) === hostKey;
-        })
-        : null;
-
-      return matchingResult?.favIconUrl || this.getFaviconUrl(pageUrl);
+      return this.getFaviconUrl(item.url);
     }
 
     init() {
@@ -992,7 +974,7 @@
         element.classList.add('open-option');
       }
 
-      const favIconUrl = item.favIconUrl || (item.type === 'open' && item.url ? this.getOpenOptionFaviconUrl(item.url) : '');
+      const favIconUrl = this.getSafeFaviconUrl(item);
 
       if (item.type !== 'search') {
         if (favIconUrl && !favIconUrl.startsWith('chrome://')) {
