@@ -35,13 +35,21 @@
     pinyinMatchingEnabled: true,
     resultsLimit: 10
   };
+  const ALLOWED_RESULTS_LIMITS = PREFERENCES.ALLOWED_RESULTS_LIMITS || [10, 20, 50];
   const SEARCH_PREFERENCE_KEYS = PREFERENCES.SEARCH_PREFERENCE_KEYS || Object.keys(DEFAULT_SEARCH_PREFERENCES);
   const normalizeSearchPreferences = PREFERENCES.normalizeSearchPreferences || ((values) => {
     const source = values && typeof values === 'object' ? values : {};
     return SEARCH_PREFERENCE_KEYS.reduce((preferences, key) => {
-      preferences[key] = typeof source[key] === 'boolean'
-        ? source[key]
-        : DEFAULT_SEARCH_PREFERENCES[key];
+      if (key === 'resultsLimit') {
+        const num = Number(source[key]);
+        preferences[key] = ALLOWED_RESULTS_LIMITS.includes(num)
+          ? num
+          : DEFAULT_SEARCH_PREFERENCES[key];
+      } else {
+        preferences[key] = typeof source[key] === 'boolean'
+          ? source[key]
+          : DEFAULT_SEARCH_PREFERENCES[key];
+      }
       return preferences;
     }, {});
   });
@@ -63,6 +71,7 @@
       this.visibleResultIndices = [];
       this.searchPreferences = normalizeSearchPreferences({});
       this.quickPickHint = null;
+      this.resultsLimitSelect = null;
 
       // 版本标记 + destroy 状态，供扩展更新时旧实例替换逻辑使用
       this.version = POUNCE_OVERLAY_VERSION;
@@ -202,10 +211,25 @@
 
       const leftContainer = document.createElement('div');
       leftContainer.className = 'pounce-search-bottom-left';
-      leftContainer.textContent = window.i18n
+      const resultsCounter = document.createElement('span');
+      resultsCounter.className = 'pounce-results-counter';
+      resultsCounter.textContent = window.i18n
         ? window.i18n.t('overlay_zeroResults')
         : '0 results';
-      this.resultsCounter = leftContainer; // 保存引用以便后续更新
+      this.resultsCounter = resultsCounter; // 保存引用以便后续更新
+      const resultsLimitSelect = document.createElement('select');
+      resultsLimitSelect.className = 'pounce-results-limit-select';
+      resultsLimitSelect.title = window.i18n ? window.i18n.t('options_resultsLimit') : 'Results shown';
+      resultsLimitSelect.setAttribute('aria-label', resultsLimitSelect.title);
+      ALLOWED_RESULTS_LIMITS.forEach((limit) => {
+        const option = document.createElement('option');
+        option.value = String(limit);
+        option.textContent = String(limit);
+        resultsLimitSelect.appendChild(option);
+      });
+      this.resultsLimitSelect = resultsLimitSelect;
+      leftContainer.appendChild(resultsCounter);
+      leftContainer.appendChild(resultsLimitSelect);
       bottomContainer.appendChild(leftContainer);
       const rightContainer = document.createElement('div');
       rightContainer.className = 'pounce-hints';
@@ -304,6 +328,12 @@
         this._resetMouseActivation();
         this.handleKeyDown(e);
       });
+
+      if (this.resultsLimitSelect) {
+        this.resultsLimitSelect.addEventListener('change', () => {
+          this.updateResultsLimitPreference(this.resultsLimitSelect.value);
+        });
+      }
 
       // 自维护 IME 组词状态：Shadow DOM + 部分 IME 下 e.isComposing 不可靠。
       this.isComposing = false;
@@ -455,6 +485,11 @@
       if (this.closeHintEl) {
         this.closeHintEl.textContent = ' ' + window.i18n.t('overlay_close');
       }
+      if (this.resultsLimitSelect) {
+        const label = window.i18n.t('options_resultsLimit');
+        this.resultsLimitSelect.title = label;
+        this.resultsLimitSelect.setAttribute('aria-label', label);
+      }
       // 重新渲染当前结果（含 sourceLabel 等动态文本）和计数
       if (this.currentResults && this.currentResults.length) {
         this.renderResults(this.searchInput ? this.searchInput.value : '');
@@ -605,6 +640,7 @@
       this.overlay = null;
       this.searchInput = null;
       this.resultsContainer = null;
+      this.resultsLimitSelect = null;
 
       if (this.isVisible) {
         document.body.style.overflow = '';
@@ -628,6 +664,10 @@
         window.PounceSearchUtils.setPinyinMatchingEnabled(this.searchPreferences.pinyinMatchingEnabled);
       }
 
+      if (this.resultsLimitSelect) {
+        this.resultsLimitSelect.value = String(this.searchPreferences.resultsLimit);
+      }
+
       if (this.overlay) {
         this.overlay.classList.toggle('pounce-quick-pick-disabled', !this.searchPreferences.quickPickEnabled);
       }
@@ -642,6 +682,30 @@
       }
 
       this.updateNumberBadges();
+    }
+
+    async updateResultsLimitPreference(value) {
+      const nextPreferences = normalizeSearchPreferences({
+        ...this.searchPreferences,
+        resultsLimit: value
+      });
+      const nextLimit = nextPreferences.resultsLimit;
+
+      if (nextLimit === this.searchPreferences.resultsLimit) {
+        if (this.resultsLimitSelect) {
+          this.resultsLimitSelect.value = String(nextLimit);
+        }
+        return;
+      }
+
+      this.searchPreferences = nextPreferences;
+      this.applySearchPreferences();
+
+      try {
+        await chrome.storage.sync.set({ resultsLimit: nextLimit });
+      } catch (error) {
+        console.warn('Pounce: failed to save results limit preference', error);
+      }
     }
 
     async loadSearchData() {
